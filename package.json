@@ -1,7 +1,7 @@
 {
     "name": "short-commands",
     "displayName": "Short Commands",
-    "description": "",
+    "description": "Alternative command palette that relies on short aliases.",
     "version": "0.0.1",
     "publisher": "laginha87",
     "repository": "https://github.com/laginha87/vscode-short-commands",

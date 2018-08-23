@@ -2,7 +2,7 @@
     "name": "short-commands",
     "displayName": "Short Commands",
     "description": "",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "publisher": "laginha87",
     "engines": {
         "vscode": "^1.26.0"
@@ -15,11 +15,13 @@
     ],
     "main": "./out/extension",
     "contributes": {
-        "commands": [{
-            "command": "short-commands.activatePalette",
-            "category": "Short Commands",
-            "title": "Activate Palette"
-        }]
+        "commands": [
+            {
+                "command": "short-commands.activatePalette",
+                "category": "Short Commands",
+                "title": "Activate Palette"
+            }
+        ]
     },
     "scripts": {
         "vscode:prepublish": "npm run compile",

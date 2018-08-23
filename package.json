@@ -2,8 +2,9 @@
     "name": "short-commands",
     "displayName": "Short Commands",
     "description": "",
-    "version": "0.0.2",
+    "version": "0.0.1",
     "publisher": "laginha87",
+    "repository": "https://github.com/laginha87/vscode-short-commands",
     "engines": {
         "vscode": "^1.26.0"
     },

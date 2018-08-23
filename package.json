@@ -11,13 +11,14 @@
         "Other"
     ],
     "activationEvents": [
-        "onCommand:extension.sayHello"
+        "onCommand:short-commands.activatePalette"
     ],
     "main": "./out/extension",
     "contributes": {
         "commands": [{
-            "command": "extension.sayHello",
-            "title": "Hello World"
+            "command": "short-commands.activatePalette",
+            "category": "Short Commands",
+            "title": "Activate Palette"
         }]
     },
     "scripts": {

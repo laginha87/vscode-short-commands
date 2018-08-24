@@ -9,7 +9,7 @@ export function activate(context: vscode.ExtensionContext) {
     // The command has been defined in the package.json file
     // Now provide the implementation of the command with  registerCommand
     // The commandId parameter must match the command field in package.json
-    const options = parseExtensionCommands(vscode.extensions.all)
+    const options = parseExtensionCommands(vscode.extensions.all);
 
 
     let disposable = vscode.commands.registerCommand('short-commands.activatePalette', () => {
@@ -19,14 +19,14 @@ export function activate(context: vscode.ExtensionContext) {
             if (ee.length === 0) {
                 list.items = [];
             } else {
-                list.items = options.filter((e) => e.short.startsWith(ee))
+                list.items = options.filter((e) => e.short.startsWith(ee));
             }
         });
         list.onDidAccept(() => {
-            vscode.commands.executeCommand(list.activeItems[0].command.command)
+            vscode.commands.executeCommand(list.activeItems[0].command.command);
             list.hide();
             list.dispose();
-        })
+        });
         list.show();
 
     });

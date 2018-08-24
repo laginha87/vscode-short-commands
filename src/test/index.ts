@@ -33,14 +33,12 @@ function _mkDirIfExists(dir: string): void {
     }
 }
 
-function _readCoverOptions(testsRoot: string): ITestRunnerOptions | undefined {
+function _readCoverOptions(testsRoot: string): ITestRunnerOptions {
     let coverConfigPath = paths.join(testsRoot, "..", "..", "coverconfig.json");
-    let coverConfig: ITestRunnerOptions | undefined = undefined;
-    if (fs.existsSync(coverConfigPath)) {
-        let configContent = fs.readFileSync(coverConfigPath, "utf-8");
-        coverConfig = JSON.parse(configContent);
-    }
-    return coverConfig;
+
+    let configContent = fs.readFileSync(coverConfigPath, "utf-8");
+
+    return JSON.parse(configContent);
 }
 
 function run(testsRoot, clb): any {
@@ -48,7 +46,7 @@ function run(testsRoot, clb): any {
     require("source-map-support").install();
 
     // Read configuration for the coverage file
-    let coverOptions: ITestRunnerOptions | undefined = _readCoverOptions(testsRoot);
+    let coverOptions: ITestRunnerOptions = _readCoverOptions(testsRoot);
     if (coverOptions && coverOptions.enabled) {
         // Setup coverage pre-test, including post-test hook to report
         let coverageRunner = new CoverageRunner(coverOptions, testsRoot, clb);

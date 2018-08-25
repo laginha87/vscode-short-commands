@@ -39,3 +39,13 @@ Calling out known issues can help limit users opening duplicate issues against y
 ### 0.0.1
 
 Adds a command palette with commands from extensions.
+
+
+## Roadmap
+
+- [ ] Add editor commands
+- [ ] Add tasks
+- [ ] Add custom scripts
+- [ ] Add command history
+- [ ] Add option to use default palette ??
+- [ ] Add command 

@@ -38,4 +38,4 @@ Calling out known issues can help limit users opening duplicate issues against y
 
 ### 0.0.1
 
-Proof of Concept
+Adds a command palette with commands from extensions.

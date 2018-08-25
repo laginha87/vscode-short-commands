@@ -26,8 +26,8 @@ suite("Palette", function () {
         let { palette, command, view } = setUpPalette();
 
         assert.deepEqual(palette.items, [command]);
-        assert(view.onDidChangeValue.calledWith(palette.filter));
-        assert(view.onDidAccept.calledWith(palette.execute));
+        assert(view.onDidChangeValue.calledWith(palette.filter, palette));
+        assert(view.onDidAccept.calledWith(palette.execute, palette));
     });
 
     test("show", () => {
@@ -50,10 +50,15 @@ suite("Palette", function () {
         assert(view.hide.calledOnce);
     });
 
+    test("placehold", () => {
+        let palette = new Palette([nc("Docker Compose Up")]);
+        assert.equal(palette.view.placeholder, "Example: type dcu to run Docker Compose Up");
+    } );
+
     test("filter", () => {
         [{
             input:
-                { commands: [], text: "" },
+                { commands: [nc("Start Stuff")], text: "" },
             output: []
         },
         {

@@ -6,9 +6,14 @@ export class Palette {
     public view: QuickPick<CommandOption>;
 
     constructor(public items: CommandOption[], quickPickBuilder = vscode.window.createQuickPick) {
-        this.view = quickPickBuilder();
-        this.view.onDidChangeValue(this.filter);
-        this.view.onDidAccept(this.execute);
+        let view = quickPickBuilder<CommandOption>();
+        view.onDidChangeValue(this.filter, this);
+        view.onDidAccept(this.execute, this);
+        // TODO: Figure out what to do if items is empty;
+        let sample = items[Math.floor(Math.random() * items.length)];
+        view.placeholder = `Example: type ${sample.short} to run ${sample.description}`;
+
+        this.view = view;
     }
 
     public show(): void {

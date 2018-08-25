@@ -15,6 +15,15 @@
     "activationEvents": [
         "onCommand:short-commands.activatePalette"
     ],
+    "badges": [
+        {
+            "description": "Build",
+            "url": "https://travis-ci.com/laginha87/vscode-short-commands.svg?branch=master"
+        },{
+            "description": "Coverage",
+            "url": "https://codecov.io/gh/laginha87/vscode-short-commands/branch/master/graph/badge.svg"
+        }
+    ],
     "main": "./out/extension",
     "contributes": {
         "commands": [

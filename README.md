@@ -1,5 +1,10 @@
 # short-commands
 
+[![Build Status](https://travis-ci.com/laginha87/vscode-short-commands.svg?branch=master)](https://travis-ci.com/laginha87/vscode-short-commands)
+
+[![codecov](https://codecov.io/gh/laginha87/vscode-short-commands/branch/master/graph/badge.svg)](https://codecov.io/gh/laginha87/vscode-short-commands)
+
+
 An alternate command palette that generates alias to commands from the first letter for command.
 
 

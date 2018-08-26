@@ -5,16 +5,17 @@
 An alternate command palette that generates alias to commands from the first letter for command.
 
 
-<!-- ## Features
+## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+### Command palette with short commands
 
-For example if there is an image subfolder under your extension project workspace:
+Right the now the command palette only has commands from extensions no editor commands.
+The short command is the first letter of each word in the command (For example: The short command version of "Docker Compose Up" is dcu)
 
-\!\[feature X\]\(images/feature-x.png\)
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+![short-commands](images/short-commands.gif)
 
+<!--
 ## Requirements
 
 If you have any requirements or dependencies, add a section describing those and how to install and configure them.
@@ -36,6 +37,9 @@ Calling out known issues can help limit users opening duplicate issues against y
 
 ## Release Notes
 
+### 0.0.3
+Shows example commands when the palette is empty.
+
 ### 0.0.1
 
 Adds a command palette with commands from extensions.
@@ -48,4 +52,4 @@ Adds a command palette with commands from extensions.
 - [ ] Add custom scripts
 - [ ] Add command history
 - [ ] Add option to use default palette ??
-- [ ] Add command 
+- [ ] Add command

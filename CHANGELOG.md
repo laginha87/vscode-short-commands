@@ -6,10 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 - **doc** Defines roadmap
+- **feat** Adds sample commands to the palette placeholder
 
 ## [0.0.2] - 2018-08-25
 ### Added
-- **doc** Adds the changelog :P
+- **doc** The changelog :P
 
 ## [0.0.1] - 2018-08-25
 ### Added

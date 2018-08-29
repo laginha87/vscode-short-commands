@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Added
+- **tests** Smoke test to the extension
+
 ## [0.0.3] - 2018-08-26
 ### Added
 - **doc** Animations to the readme

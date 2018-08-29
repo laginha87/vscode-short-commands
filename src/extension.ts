@@ -17,6 +17,7 @@ export function activate(context: vscode.ExtensionContext) {
     let disposable = vscode.commands.registerCommand('short-commands.activatePalette', () => {
         let palette = new Palette(options);
         palette.show();
+        return true;
     });
 
     context.subscriptions.push(disposable);

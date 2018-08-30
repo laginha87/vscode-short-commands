@@ -27,6 +27,20 @@ export class CommandOption implements QuickPickItem {
   }
 }
 
+export class HistoryCommandOption extends CommandOption {
+  public constructor(command: Command, public position = 0) {
+    super(command);
+  }
+
+  public static update_positions(commands : HistoryCommandOption[]) : HistoryCommandOption[]{
+    return commands.map((command, position) => {
+      let newCommand = new HistoryCommandOption(command.command, position);
+      newCommand.label = `[${position}]`;
+      return newCommand;
+    });
+  }
+}
+
 export function parseExtensionCommands(
   extensions: Extension<any>[]
 ): CommandOption[] {

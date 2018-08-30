@@ -1,11 +1,11 @@
-import { CommandOption } from "./commands";
+import { CommandOption, HistoryCommandOption } from "./commands";
 import { QuickPick } from "vscode";
 import * as vscode from "vscode";
 
 
 export class Palette {
   public view: QuickPick<CommandOption>;
-  readonly history = new Array<CommandOption>();
+  readonly history = new Array<HistoryCommandOption>();
   constructor(
     public items: CommandOption[],
     quickPickBuilder = vscode.window.createQuickPick
@@ -17,7 +17,7 @@ export class Palette {
     let sample = items[Math.floor(Math.random() * items.length)];
     view.placeholder = `Example: type ${sample.short} to run ${
       sample.description
-    }`;
+      }`;
 
     this.view = view;
   }
@@ -25,7 +25,7 @@ export class Palette {
   public show(): void {
     this.view.show();
     this.view.value = "";
-    this.view.items = this.history.map((e)=> e);
+    this.view.items = HistoryCommandOption.update_positions(this.history);
   }
 
   public execute(
@@ -35,12 +35,13 @@ export class Palette {
   ): void {
     vscodeExecuteCommand(commandOption.command.command);
     this.view.hide();
-    this.history.push(commandOption);
+    let historyCommand = HistoryCommandOption.fromCommand(commandOption)
+    this.history.unshift(historyCommand);
   }
 
   public filter(filterText: string): void {
     if (filterText.length === 0) {
-      this.set(this.history);
+      this.set(HistoryCommandOption.update_positions(this.history));
     } else {
       this.set(this.items.filter(e => e.short.startsWith(filterText)));
     }

@@ -18,4 +18,4 @@ install:
 script:
   - npm test --silent
   # Check changelog was updated
-  - git diff --name-only HEAD~2 | grep -qF 'CHANGELOG'
+  - git diff --name-only master | grep -qF 'CHANGELOG'

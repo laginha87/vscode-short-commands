@@ -1,83 +1,122 @@
 import * as assert from "assert";
 import { Palette } from "../palette";
-import { CommandOption } from "../commands";
+import { CommandOption, HistoryCommandOption } from "../commands";
 import * as sinon from "sinon";
-// import {QuickPick} from 'vscode';
-
 
 function nc(title: string, command = "vscode.Command") {
-    return new CommandOption({ title, command });
+  return new CommandOption({ title, command });
+}
+function nhc(title: string, position=0, command = "vscode.Command") {
+  let res =  new HistoryCommandOption({ title, command }, position);
+  res.label = `[${position}]`;
+  return res;
 }
 
-function setUpPalette(): { view: any, command: any, palette: any } {
+function noop(..._args: any[]) { }
 
-    let view = ["show", "onDidChangeValue", "onDidAccept", "dispose", "hide"].reduce((acc, method) => ({ ...acc, [method]: sinon.spy() }), {}),
-        builder = sinon.stub().returns(view),
-        command = new CommandOption({ title: "a", command: "command" }),
-        palette = new Palette([command], builder);
+function setUpPalette(): {
+  view: any;
+  command: CommandOption;
+  palette: Palette;
+} {
+  let view = [
+    "show",
+    "onDidChangeValue",
+    "onDidAccept",
+    "hide"
+  ].reduce((acc, method) => ({ ...acc, [method]: sinon.spy() }), {}),
+    builder = sinon.stub().returns(view),
+    command = new CommandOption({ title: "a", command: "command" }),
+    palette = new Palette([command], builder);
 
-    return { view, command, palette };
+  return { view, command, palette };
 }
-
 
 suite("Palette", function () {
-    // Defines a Mocha unit test
-    test("Palette constructor", () => {
-        let { palette, command, view } = setUpPalette();
+  // Defines a Mocha unit test
+  test("Palette constructor", () => {
+    let { palette, command, view } = setUpPalette();
 
-        assert.deepEqual(palette.items, [command]);
-        assert(view.onDidChangeValue.calledWith(palette.filter, palette));
-        assert(view.onDidAccept.calledWith(palette.execute, palette));
-    });
+    assert.deepEqual(palette.items, [command]);
+    assert(view.onDidChangeValue.calledWith(palette.filter, palette));
+    assert(view.onDidAccept.calledWith(palette.execute, palette));
+  });
 
-    test("show", () => {
-        let { view, palette } = setUpPalette();
-        palette.show();
+  test("show", () => {
+    let { view, palette } = setUpPalette();
+    palette.show();
+    assert(view.show.called);
+    assert.equal(view.value, "");
+    assert.deepEqual(view.items, []);
 
-        assert(view.show.called);
-    });
+    let test_command = nc("Title", "command")
+    palette.execute(null, test_command);
+    assert.deepEqual(palette.view.items, []);
+    palette.show();
 
-    test("execute", () => {
-        let { palette, command, view } = setUpPalette();
-        let vscodeExecuteCommand = sinon.spy();
+    assert.deepEqual(palette.view.items, [ nhc("Title", 0, "command")]);
+  });
 
-        // HACK
-        palette.activeCommand = () => command.command;
+  test("execute", () => {
+    let { palette, command, view } = setUpPalette();
+    let vscodeExecuteCommand = sinon.spy();
 
-        palette.execute(null, vscodeExecuteCommand);
-        assert(vscodeExecuteCommand.calledOnceWith(command.command));
-        assert(view.dispose.calledOnce);
-        assert(view.hide.calledOnce);
-    });
+    palette.execute(null, command, vscodeExecuteCommand);
+    assert(vscodeExecuteCommand.calledOnceWith(command.command.command));
 
-    test("placehold", () => {
-        let palette = new Palette([nc("Docker Compose Up")]);
-        assert.equal(palette.view.placeholder, "Example: type dcu to run Docker Compose Up");
-    } );
+    assert(view.hide.calledOnce);
+    assert.deepEqual(palette.history, [new HistoryCommandOption(command.command)]);
+  });
 
-    test("filter", () => {
-        [{
-            input:
-                { commands: [nc("Start Stuff")], text: "" },
-            output: []
+  test("placeholder", () => {
+    let palette = new Palette([nc("Docker Compose Up")]);
+    assert.equal(
+      palette.view.placeholder,
+      "Example: type dcu to run Docker Compose Up"
+    );
+  });
+
+  test("filter", () => {
+    type beforeCallback = (palette: Palette) => {};
+    interface TestCase {
+      input: { commands: CommandOption[]; text: string };
+      output: CommandOption[];
+      before?: beforeCallback;
+    }
+
+    (<TestCase[]>[
+      {
+        input: { commands: [nc("Start Stuff")], text: "" },
+        output: []
+      },
+      {
+        input: {
+          commands: [
+            nc("Start Docker Container"),
+            nc("Start"),
+            nc("Down Docker Container")
+          ],
+          text: "sd"
         },
-        {
-            input:
-            {
-                commands: [
-                    nc("Start Docker Container"),
-                    nc("Start"),
-                    nc("Down Docker Container")
-                ], text: "sd"
-            },
-            output: [nc("Start Docker Container")]
+        output: [nc("Start Docker Container")]
+      },
+      {
+        input: {
+          commands: [nc("Start Docker Container")],
+          text: ""
         },
-        ].forEach(({ input: { commands, text }, output }) => {
-            let palette = new Palette(commands);
-            palette.filter(text)
-            assert.deepEqual(palette.view.items, output);
-        });
+
+        output: [nhc("Kill Docker Container"), nhc("Start Docker Container", 1)],
+        before(palette: Palette) {
+          palette.execute(null, nc("Start Docker Container"));
+          palette.execute(null, nc("Kill Docker Container"));
+        }
+      }
+    ]).forEach(({ input: { commands, text }, output, before }) => {
+      let palette = new Palette(commands);
+      (<beforeCallback>(before || noop))(palette);
+      palette.filter(text);
+      assert.deepEqual(palette.view.items, output);
     });
-
-
+  });
 });

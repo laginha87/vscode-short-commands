@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 - **tests** Smoke test to the extension
+- **feat** Show latest commands run (command history) when palette input is empty
 
 ## [0.0.3] - 2018-08-26
 ### Added

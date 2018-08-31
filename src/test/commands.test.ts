@@ -1,6 +1,6 @@
 import * as assert from "assert";
 import { Extension } from "vscode";
-import { parseExtensionCommands } from "../commands";
+import { parseExtensionCommands, HistoryCommandOption } from "../commands";
 
 function NewExtension(packageJSON: any): Extension<any> {
   return {
@@ -10,14 +10,14 @@ function NewExtension(packageJSON: any): Extension<any> {
     isActive: true,
     exports: {},
     activate() {
-      return new Promise(() => {});
+      return new Promise(() => { });
     }
   };
 }
 
-suite("Commmands", function() {
+suite("Commmands", function () {
   // Defines a Mocha unit test
-  test("parseExtensionCommands", function() {
+  test("parseExtensionCommands", function () {
     [
       {
         input: [],
@@ -49,6 +49,26 @@ suite("Commmands", function() {
     ].forEach(({ input, output }) => {
       assert.deepEqual(parseExtensionCommands(input), output);
     });
-    // assert.equal(-1, [1, 2, 3].indexOf(0));
   });
+
+  suite("HistoryCommand", function () {
+    test("constructor", function () {
+      let command = new HistoryCommandOption({ command: "Command", title: "Title" });
+      assert.equal(command.position, 0);
+    });
+
+    test("update_positions", function () {
+      let command = { command: "Command", title: "Title" }
+      let commands = [new HistoryCommandOption(command), new HistoryCommandOption(command), new HistoryCommandOption(command)]
+      let newCommands = HistoryCommandOption.update_positions(commands);
+      assert(commands.every((e) => e.position === 0));
+
+      assert.equal(0, newCommands[0].position);
+      assert.equal(1, newCommands[1].position);
+      assert.equal(2, newCommands[2].position);
+      assert.equal("[0]", newCommands[0].label);
+      assert.equal("[1]", newCommands[1].label);
+      assert.equal("[2]", newCommands[2].label);
+    });
+  })
 });

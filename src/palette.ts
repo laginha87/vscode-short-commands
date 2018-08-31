@@ -2,7 +2,6 @@ import { CommandOption, HistoryCommandOption } from "./commands";
 import { QuickPick } from "vscode";
 import * as vscode from "vscode";
 
-
 export class Palette {
   public view: QuickPick<CommandOption>;
   readonly history = new Array<HistoryCommandOption>();
@@ -14,10 +13,12 @@ export class Palette {
     view.onDidChangeValue(this.filter, this);
     view.onDidAccept(this.execute, this);
     // TODO: Figure out what to do if items is empty;
+    if (items.length > 0) {
     let sample = items[Math.floor(Math.random() * items.length)];
     view.placeholder = `Example: type ${sample.short} to run ${
       sample.description
       }`;
+    }
 
     this.view = view;
   }
@@ -25,7 +26,7 @@ export class Palette {
   public show(): void {
     this.view.show();
     this.view.value = "";
-    this.view.items = HistoryCommandOption.update_positions(this.history);
+    this.view.items = HistoryCommandOption.updatePositions(this.history);
   }
 
   public execute(
@@ -35,13 +36,27 @@ export class Palette {
   ): void {
     vscodeExecuteCommand(commandOption.command.command);
     this.view.hide();
-    let historyCommand = HistoryCommandOption.fromCommand(commandOption)
+    let historyCommand = HistoryCommandOption.fromCommand(commandOption);
+    this.appendToHistory(historyCommand);
+  }
+
+  public appendToHistory(historyCommand: HistoryCommandOption) {
+    let olderIndex = this.history.findIndex(({command: {command}}) => command === historyCommand.command.command);
+
+    if (olderIndex !== -1) {
+      this.history.splice(olderIndex, 1);
+    }
     this.history.unshift(historyCommand);
+    if(this.history.length > 10) {
+      this.history.pop();
+    }
   }
 
   public filter(filterText: string): void {
     if (filterText.length === 0) {
-      this.set(HistoryCommandOption.update_positions(this.history));
+      this.set(HistoryCommandOption.updatePositions(this.history));
+    } else if (filterText.match(/^\d+$/)) {
+      this.set(HistoryCommandOption.updatePositions(this.history));
     } else {
       this.set(this.items.filter(e => e.short.startsWith(filterText)));
     }

@@ -15,9 +15,8 @@ function NewExtension(packageJSON: any): Extension<any> {
   };
 }
 
-suite("Commmands", function () {
-  // Defines a Mocha unit test
-  test("parseExtensionCommands", function () {
+suite("Commands", function () {
+  suite("parseExtensionCommands()", function () {
     [
       {
         input: [],
@@ -46,21 +45,21 @@ suite("Commmands", function () {
           }
         ]
       }
-    ].forEach(({ input, output }) => {
-      assert.deepEqual(parseExtensionCommands(input), output);
+    ].forEach(({ input, output }, i) => {
+      test(`test case ${i}`, () => { assert.deepEqual(parseExtensionCommands(input), output);});
     });
   });
 
   suite("HistoryCommand", function () {
-    test("constructor", function () {
+    test("constructor()", function () {
       let command = new HistoryCommandOption({ command: "Command", title: "Title" });
       assert.equal(command.position, 0);
     });
 
-    test("update_positions", function () {
-      let command = { command: "Command", title: "Title" }
-      let commands = [new HistoryCommandOption(command), new HistoryCommandOption(command), new HistoryCommandOption(command)]
-      let newCommands = HistoryCommandOption.update_positions(commands);
+    test("updatePositions()", function () {
+      let command = { command: "Command", title: "Title" };
+      let commands = [new HistoryCommandOption(command), new HistoryCommandOption(command), new HistoryCommandOption(command)];
+      let newCommands = HistoryCommandOption.updatePositions(commands);
       assert(commands.every((e) => e.position === 0));
 
       assert.equal(0, newCommands[0].position);
@@ -70,5 +69,5 @@ suite("Commmands", function () {
       assert.equal("[1]", newCommands[1].label);
       assert.equal("[2]", newCommands[2].label);
     });
-  })
+  });
 });

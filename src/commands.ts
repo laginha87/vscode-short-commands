@@ -36,7 +36,7 @@ export class HistoryCommandOption extends CommandOption {
     return new this(command.command);
   }
 
-  public static update_positions(commands : HistoryCommandOption[]) : HistoryCommandOption[]{
+  public static updatePositions(commands : HistoryCommandOption[]) : HistoryCommandOption[]{
     return commands.map((command, position) => {
       let newCommand = new HistoryCommandOption(command.command, position);
       newCommand.label = `[${position}]`;

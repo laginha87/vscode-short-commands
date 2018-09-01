@@ -7,8 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 
 ### Added
+- **feat** Show the last 10 commands run (command history) when palette input is empty. The commands can be run by choosing the according number.
 - **tests** Smoke test to the extension
-- **feat** Show latest commands run (command history) when palette input is empty
+- **tests** Improved visibility over some tests
 
 ## [0.0.3] - 2018-08-26
 ### Added

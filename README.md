@@ -36,6 +36,8 @@ This extension contributes the following settings:
 Calling out known issues can help limit users opening duplicate issues against your extension. -->
 
 ## Release Notes
+### 0.0.4
+Adds command history.
 
 ### 0.0.3
 Shows example commands when the palette is empty.

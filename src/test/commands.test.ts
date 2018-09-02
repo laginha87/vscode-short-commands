@@ -1,6 +1,7 @@
 import * as assert from "assert";
-import { Extension } from "vscode";
-import { parseExtensionCommands, HistoryCommandOption } from "../commands";
+import { Extension, Command, workspace } from "vscode";
+import { parseExtensionCommands, HistoryCommandOption, getCommands, Config, CommandOption } from "../commands";
+import sinon = require("sinon");
 
 function NewExtension(packageJSON: any): Extension<any> {
   return {
@@ -63,6 +64,41 @@ suite("Commands", function () {
     ].forEach(({ input, output }, i) => {
       test(`test case ${i}`, () => { assert.deepEqual(parseExtensionCommands(input), output); });
     });
+  });
+
+  suite("getCommands()", function () {
+    let extensionCommand = new CommandOption({ command: "extensionCommand", title: "extensionCommand" }),
+      workspaceTask = new CommandOption({ command: "workspaceTask", title: "workspaceTask" });
+
+    interface TestCase {
+      input: Config;
+      output: CommandOption[];
+    }
+    let testCases: TestCase[] = [{
+      input: {
+        includeExtensions: true,
+        includeWorkspaceTasks: false
+      },
+      output: [extensionCommand]
+    },
+    {
+      input: {
+        includeExtensions: false,
+        includeWorkspaceTasks: true,
+      },
+      output: [workspaceTask]
+    }];
+
+    testCases.forEach((t, i) => {
+      test(`test case ${i}`, () => {
+        let getExtensions = sinon.mock().returns([extensionCommand]),
+          getWorkspaceTasks = sinon.mock().returns([workspaceTask]),
+          expected = getCommands(t.input, getExtensions, getWorkspaceTasks);
+
+        assert.deepEqual(t.output, expected);
+      });
+    });
+
   });
 
   suite("HistoryCommand", function () {

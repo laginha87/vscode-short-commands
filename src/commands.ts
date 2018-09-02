@@ -1,4 +1,5 @@
 import { Extension, QuickPickItem } from "vscode";
+import * as vscode from "vscode";
 
 interface I18nString {
   original: string;
@@ -9,6 +10,11 @@ interface Command {
   category?: string;
   command: string;
   title: string | I18nString;
+}
+
+export interface Config {
+  includeExtensions: boolean;
+  includeWorkspaceTasks: boolean;
 }
 
 export class CommandOption implements QuickPickItem {
@@ -66,4 +72,24 @@ export function parseExtensionCommands(
     }
   });
   return options;
+}
+
+export function GetWorkspaceTasks() : CommandOption[] {
+  vscode.tasks..
+  return [];
+}
+
+export function getCommands(config : Config,
+  getExtensions = parseExtensionCommands,
+  getWorkspaceTasks = GetWorkspaceTasks): CommandOption[] {
+  let output: CommandOption[] = [];
+  if (config.includeExtensions) {
+    output = output.concat(getExtensions(vscode.extensions.all));
+  }
+
+  if (config.includeWorkspaceTasks) {
+    output = output.concat(getWorkspaceTasks());
+  }
+
+  return output;
 }

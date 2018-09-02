@@ -16,4 +16,20 @@ suite("Extension Tests", function () {
         let res = await promise;
         assert(res);
     });
+
+    test("package.json", function () {
+        let extension = vscode.extensions.getExtension("laginha87.short-commands");
+        if (extension === undefined) {
+            return assert.fail("Could not find extension with id short-commands");
+        }
+        let { packageJSON: { activationEvents, contributes: { commands } } } = extension;
+        assert.deepEqual(["onCommand:short-commands.activatePalette"], activationEvents);
+
+        assert.deepEqual([{
+            "command": "short-commands.activatePalette",
+            "category": "Short Commands",
+            "title": "Activate Palette"
+        }], commands);
+
+    });
 });

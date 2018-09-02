@@ -22,7 +22,7 @@ suite("Extension Tests", function () {
         if (extension === undefined) {
             return assert.fail("Could not find extension with id short-commands");
         }
-        let { packageJSON: { activationEvents, contributes: { commands } } } = extension;
+        let { packageJSON: { activationEvents, contributes: { commands, configuration } } } = extension;
         assert.deepEqual(["onCommand:short-commands.activatePalette"], activationEvents);
 
         assert.deepEqual([{
@@ -31,5 +31,16 @@ suite("Extension Tests", function () {
             "title": "Activate Palette"
         }], commands);
 
+        assert.deepEqual({
+            "type": "object",
+            "title": "Short Commands Configuration",
+            "properties": {
+                "short-commands.includeWorkspaceTasks": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Include workspace tasks in the command suggestions."
+                }
+            }
+        }, configuration);
     });
 });

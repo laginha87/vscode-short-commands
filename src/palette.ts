@@ -34,7 +34,8 @@ export class Palette {
     commandOption = this.activeCommand(),
     vscodeExecuteCommand = vscode.commands.executeCommand
   ): void {
-    vscodeExecuteCommand(commandOption.command.command);
+    // TODO: Figure out what to do on callbacks.
+    vscodeExecuteCommand(commandOption.command.command).then(() => {} , function onError(){});
     this.view.hide();
     let historyCommand = HistoryCommandOption.fromCommand(commandOption);
     this.appendToHistory(historyCommand);

@@ -61,7 +61,7 @@ suite("Palette", function () {
 
   test("execute()", () => {
     let { palette, command, view } = setUpPalette();
-    let vscodeExecuteCommand = sinon.spy();
+    let vscodeExecuteCommand = sinon.spy(() => ({then(){}}));
 
     palette.execute(null, command, vscodeExecuteCommand);
     assert(vscodeExecuteCommand.calledOnceWith(command.command.command));

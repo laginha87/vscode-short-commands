@@ -30,7 +30,18 @@
                 "category": "Short Commands",
                 "title": "Activate Palette"
             }
-        ]
+        ],
+        "configuration": {
+            "type": "object",
+            "title": "Short Commands Configuration",
+            "properties": {
+                "short-commands.includeWorkspaceTasks": {
+                    "default": false,
+                    "description": "Include workspace tasks in the command suggestions.",
+                    "type": "boolean"
+                }
+            }
+        }
     },
     "scripts": {
         "vscode:prepublish": "npm run compile",

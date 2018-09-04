@@ -1,5 +1,5 @@
 import * as assert from "assert";
-import { Extension, Command, workspace } from "vscode";
+import { Extension } from "vscode";
 import { parseExtensionCommands, HistoryCommandOption, getCommands, Config, CommandOption } from "../commands";
 import sinon = require("sinon");
 

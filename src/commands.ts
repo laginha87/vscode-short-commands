@@ -74,12 +74,19 @@ export function parseExtensionCommands(
   return options;
 }
 
-export function GetWorkspaceTasks() : CommandOption[] {
-  vscode.tasks..
-  return [];
+export function GetWorkspaceTasks(): CommandOption[] {
+  let activeEditor = vscode.window.activeTextEditor
+
+  if (!activeEditor) {
+    return [];
+  }
+  const launch = vscode.workspace.getConfiguration("launch", activeEditor.document.uri);
+  return launch.configurations.map((e : any) => {
+    return new CommandOption({ title: e.name, category: "Debug",  command: "Launch Extension"});
+  });
 }
 
-export function getCommands(config : Config,
+export function getCommands(config: Config,
   getExtensions = parseExtensionCommands,
   getWorkspaceTasks = GetWorkspaceTasks): CommandOption[] {
   let output: CommandOption[] = [];

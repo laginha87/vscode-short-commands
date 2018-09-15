@@ -1,7 +1,17 @@
-import * as assert from "assert";
-import { Extension } from "vscode";
-import { parseExtensionCommands, HistoryCommandOption, getCommands, Config, CommandOption } from "../commands";
-import sinon = require("sinon");
+import * as assert from 'assert';
+import sinon = require('sinon');
+import { Extension } from 'vscode';
+
+import {
+  CommandOption,
+  Config,
+  getCommands,
+  newCommandOption,
+  newHistoryCommandOption,
+  parseExtensionCommands,
+  updateHistoryPositions,
+  COMMAND_OPTION,
+} from '../commands';
 
 function NewExtension(packageJSON: any): Extension<any> {
   return {
@@ -41,7 +51,8 @@ suite("Commands", function () {
           {
             label: "[t]",
             description: "Title",
-            command: { command: "Command", title: "Title" },
+            command: "Command",
+            type: COMMAND_OPTION,
             short: "t"
           }
         ]
@@ -67,8 +78,8 @@ suite("Commands", function () {
   });
 
   suite("getCommands()", function () {
-    let extensionCommand = new CommandOption({ command: "extensionCommand", title: "extensionCommand" }),
-      workspaceTask = new CommandOption({ command: "workspaceTask", title: "workspaceTask" });
+    let extensionCommand = newCommandOption({ command: "extensionCommand", title: "extensionCommand" }),
+      workspaceTask = newCommandOption({ command: "workspaceTask", title: "workspaceTask" });
 
     interface TestCase {
       input: Config;
@@ -103,14 +114,14 @@ suite("Commands", function () {
 
   suite("HistoryCommand", function () {
     test("constructor()", function () {
-      let command = new HistoryCommandOption({ command: "Command", title: "Title" });
+      let command = newHistoryCommandOption(newCommandOption({ command: "Command", title: "Title" }));
       assert.equal(command.position, 0);
     });
 
     test("updatePositions()", function () {
-      let command = { command: "Command", title: "Title" };
-      let commands = [new HistoryCommandOption(command), new HistoryCommandOption(command), new HistoryCommandOption(command)];
-      let newCommands = HistoryCommandOption.updatePositions(commands);
+      let command = newCommandOption({ command: "Command", title: "Title" });
+      let commands = [newHistoryCommandOption(command), newHistoryCommandOption(command), newHistoryCommandOption(command)];
+      let newCommands = updateHistoryPositions(commands);
       assert(commands.every((e) => e.position === 0));
 
       assert.equal(0, newCommands[0].position);

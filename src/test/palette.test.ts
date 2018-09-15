@@ -1,15 +1,14 @@
 import * as assert from "assert";
 import { Palette } from "../palette";
-import { CommandOption, HistoryCommandOption } from "../commands";
+import { CommandOption, HistoryCommandOption, newCommandOption, newHistoryCommandOption } from "../commands";
 import * as sinon from "sinon";
 
-function nc(title: string, command = "vscode.Command") {
-  return new CommandOption({ title, command });
+function nc(title: string, command = "vscode.Command") : CommandOption{
+  return newCommandOption({ title, command });
 }
 function nhc(title: string, position = 0, command = "vscode.Command") {
-  let res = new HistoryCommandOption({ title, command }, position);
-  res.label = `[${position}]`;
-  return res;
+  let history = newCommandOption({title, command});
+  return newHistoryCommandOption(history, position);
 }
 
 function xnhc(x : number) : HistoryCommandOption[]{
@@ -28,7 +27,7 @@ function setUpPalette(): {
     {}
   ),
     builder = sinon.stub().returns(view),
-    command = new CommandOption({ title: "a", command: "command" }),
+    command = newCommandOption({ title: "a", command: "command" }),
     palette = new Palette([command], builder);
 
   return { view, command, palette };
@@ -64,11 +63,11 @@ suite("Palette", function () {
     let vscodeExecuteCommand = sinon.spy(() => ({then(){}}));
 
     palette.execute(null, command, vscodeExecuteCommand);
-    assert(vscodeExecuteCommand.calledOnceWith(command.command.command));
+    assert(vscodeExecuteCommand.calledOnceWith(command.command));
 
     assert(view.hide.calledOnce);
     assert.deepEqual(palette.history, [
-      new HistoryCommandOption(command.command)
+      newHistoryCommandOption(command)
     ]);
   });
 

@@ -6,56 +6,74 @@ interface I18nString {
   value: string;
 }
 
+
+export const COMMAND_OPTION = "COMMAND_OPTION";
+export const DEBUG_COMMAND_OPTION = "DEBUG_COMMAND_OPTION";
+export const HISTORY_COMMAND_OPTION = "HISTORY_COMMAND_OPTION";
+
+export function newCommandOption(c: Command): CommandOption {
+  const { category, title, command } = c;
+  const realTitle: string = (<I18nString>title).value ? (<I18nString>title).value : <string>title;
+  const description = category ? `${category}: ${realTitle}` : realTitle;
+  const short = description
+    .split(" ")
+    .map((e: string) => e[0].toLowerCase())
+    .join("")
+    .replace(/\W/g, "");
+  const label = `[${short}]`;
+  return {
+    type: COMMAND_OPTION,
+    label,
+    short,
+    description,
+    command
+  };
+}
 interface Command {
   category?: string;
   command: string;
   title: string | I18nString;
 }
 
+export interface ShortCommand extends QuickPickItem {
+  type: string;
+  short: string;
+}
+
+export interface CommandOption extends ShortCommand {
+  type: typeof COMMAND_OPTION;
+  command: string;
+}
+
+
 export interface Config {
   includeExtensions: boolean;
   includeWorkspaceTasks: boolean;
 }
 
-export class CommandOption implements QuickPickItem {
-  label: string;
-  description?: string | undefined;
-  detail?: string | undefined;
-  picked?: boolean | undefined;
-  command: Command;
-  short: string;
-
-  public constructor(command: Command) {
-    this.command = command;
-    const { category, title } = command;
-    const realTitle: string = (<I18nString>title).value ? (<I18nString>title).value : <string>title;
-    this.description = category ? `${category}: ${realTitle}` : realTitle;
-    this.short = this.description
-      .split(" ")
-      .map((e: string) => e[0].toLowerCase())
-      .join("")
-      .replace(/\W/g, "");
-    this.label = `[${this.short}]`;
-  }
+export interface HistoryCommandOption extends ShortCommand {
+  type: typeof HISTORY_COMMAND_OPTION;
+  history: ShortCommand;
+  position: number;
 }
 
-export class HistoryCommandOption extends CommandOption {
-  public constructor(command: Command, public position = 0) {
-    super(command);
-  }
-
-  public static fromCommand(command: CommandOption): HistoryCommandOption {
-    return new this(command.command);
-  }
-
-  public static updatePositions(commands: HistoryCommandOption[]): HistoryCommandOption[] {
-    return commands.map((command, position) => {
-      let newCommand = new HistoryCommandOption(command.command, position);
-      newCommand.label = `[${position}]`;
-      return newCommand;
-    });
-  }
+export function newHistoryCommandOption(command: ShortCommand, position = 0): HistoryCommandOption {
+  return {
+    type: HISTORY_COMMAND_OPTION,
+    history: command,
+    position,
+    short: position.toString(),
+    label: `[${position}]`,
+    description: command.description
+  };
 }
+
+export function updateHistoryPositions(commands: HistoryCommandOption[]): HistoryCommandOption[] {
+  return commands.map(({ history }, position) => {
+    return newHistoryCommandOption(history, position);
+  });
+}
+
 
 export function parseExtensionCommands(
   extensions: Extension<any>[]
@@ -67,7 +85,7 @@ export function parseExtensionCommands(
     } = ext;
     if (commands) {
       commands.forEach((c: Command) => {
-        options.push(new CommandOption(c));
+        options.push(newCommandOption(c));
       });
     }
   });
@@ -75,14 +93,15 @@ export function parseExtensionCommands(
 }
 
 export function GetWorkspaceTasks(): CommandOption[] {
-  let activeEditor = vscode.window.activeTextEditor
+  let activeEditor = vscode.window.activeTextEditor;
 
   if (!activeEditor) {
     return [];
   }
   const launch = vscode.workspace.getConfiguration("launch", activeEditor.document.uri);
-  return launch.configurations.map((e : any) => {
-    return new CommandOption({ title: e.name, category: "Debug",  command: "Launch Extension"});
+  return launch.configurations.map((e: any) => {
+    return [];
+    // return new CommandOption({ title: e.name, category: "Debug", command: "Launch Extension" });
   });
 }
 

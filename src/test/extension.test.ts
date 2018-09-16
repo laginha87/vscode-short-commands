@@ -4,16 +4,25 @@
 //
 
 // The module 'assert' provides assertion methods from node
-import * as assert from 'assert';
+// import * as assert from 'assert';
 
-// You can import and use all API from the 'vscode' module
-// as well as import your extension to test it
-import * as vscode from 'vscode';
+// // You can import and use all API from the 'vscode' module
+// // as well as import your extension to test it
+// import * as vscode from 'vscode';
 
-suite("Extension Tests", function () {
-    test("activatePalette", async function () {
-        let promise = vscode.commands.executeCommand('short-commands.activatePalette');
-        let res = await promise;
-        assert(res);
-    });
-});
+// suite("Extension Tests", function () {
+//     test("activatePalette", async function () {
+//         let promise = vscode.commands.executeCommand('short-commands.activatePalette');
+//         let res = await promise;
+//         assert(res);
+//     });
+// });
+
+test("CENA", () => {
+    expect(2).toBe(2);
+})
+
+
+test("CENA", () => {
+    expect(2).toBe(2);
+})

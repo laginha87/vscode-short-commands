@@ -11,10 +11,10 @@ import * as assert from 'assert';
 import * as vscode from 'vscode';
 
 suite("Extension Tests", function () {
-    test("activatePalette", async function () {
-        let promise = vscode.commands.executeCommand('short-commands.activatePalette');
-        let res = await promise;
-        assert(res);
+    test("activatePalette", function () {
+        return vscode.commands.executeCommand('short-commands.activatePalette').then((e) => {
+            assert(e);
+        });
     });
 
     test("package.json", function () {

@@ -1,4 +1,4 @@
-import { CommandOption, HistoryCommandOption, updateHistoryPositions, ShortCommand, COMMAND_OPTION, newHistoryCommandOption, HISTORY_COMMAND_OPTION } from "./commands";
+import { CommandOption, HistoryCommandOption, updateHistoryPositions, ShortCommand, COMMAND_OPTION, newHistoryCommandOption, HISTORY_COMMAND_OPTION, DEBUG_COMMAND_OPTION } from "./commands";
 import { QuickPick } from "vscode";
 import * as vscode from "vscode";
 import deepEqual = require("deep-equal");
@@ -39,13 +39,15 @@ export class Palette {
     // TODO: Figure out what to do on callbacks.
     switch (commandOption.type) {
       case COMMAND_OPTION:
-        vscodeExecuteCommand((<CommandOption>commandOption).command).then(() => { }, function onError() { });
+        vscodeExecuteCommand((commandOption).command).then(() => { }, function onError() { });
         break;
       case HISTORY_COMMAND_OPTION:
-        this.execute(undefined, (<HistoryCommandOption>commandOption).history);
+        this.execute(undefined, (commandOption).history);
         saveInHistory = false;
         break;
-
+      case DEBUG_COMMAND_OPTION:
+        vscode.tasks.executeTask(commandOption.task);
+        break;
       default:
         break;
     }

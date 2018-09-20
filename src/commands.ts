@@ -11,23 +11,26 @@ export const COMMAND_OPTION = "COMMAND_OPTION";
 export const DEBUG_COMMAND_OPTION = "DEBUG_COMMAND_OPTION";
 export const HISTORY_COMMAND_OPTION = "HISTORY_COMMAND_OPTION";
 
+function initials(text: string) {
+  return text.split(" ")
+    .map((e: string) => e[0].toLowerCase())
+    .join("")
+    .replace(/\W/g, "");
+}
+
 export function newCommandOption(c: Command): CommandOption {
   const { category, title, command } = c;
   const realTitle: string = (<I18nString>title).value ? (<I18nString>title).value : <string>title;
   const description = category ? `${category}: ${realTitle}` : realTitle;
-  const short = description
-    .split(" ")
-    .map((e: string) => e[0].toLowerCase())
-    .join("")
-    .replace(/\W/g, "");
+  const short = initials(description);
   const label = `[${short}]`;
   return {
     type: COMMAND_OPTION,
     label,
-    short,
     description,
-    command
-  };
+    command,
+    short
+  }
 }
 interface Command {
   category?: string;
@@ -35,14 +38,12 @@ interface Command {
   title: string | I18nString;
 }
 
-export interface ShortCommand extends QuickPickItem {
-  type: string;
-  short: string;
-}
+export type ShortCommand = CommandOption | HistoryCommandOption | DebugCommandOption;
 
-export interface CommandOption extends ShortCommand {
+export interface CommandOption extends QuickPickItem {
   type: typeof COMMAND_OPTION;
   command: string;
+  short: string;
 }
 
 
@@ -51,10 +52,11 @@ export interface Config {
   includeWorkspaceTasks: boolean;
 }
 
-export interface HistoryCommandOption extends ShortCommand {
+export interface HistoryCommandOption extends QuickPickItem {
   type: typeof HISTORY_COMMAND_OPTION;
   history: ShortCommand;
   position: number;
+  short: string;
 }
 
 export function newHistoryCommandOption(command: ShortCommand, position = 0): HistoryCommandOption {
@@ -62,9 +64,9 @@ export function newHistoryCommandOption(command: ShortCommand, position = 0): Hi
     type: HISTORY_COMMAND_OPTION,
     history: command,
     position,
-    short: position.toString(),
     label: `[${position}]`,
-    description: command.description
+    description: command.description,
+    short: `${position}`
   };
 }
 
@@ -74,6 +76,24 @@ export function updateHistoryPositions(commands: HistoryCommandOption[]): Histor
   });
 }
 
+
+export interface DebugCommandOption extends QuickPickItem {
+  type: typeof DEBUG_COMMAND_OPTION;
+  task: vscode.Task;
+  short: string;
+}
+
+export function newDebugCommandOption(task: vscode.Task): DebugCommandOption {
+  const description = `Debug: ${task.name}`;
+  const short = initials(description);
+  return {
+    type: DEBUG_COMMAND_OPTION,
+    task,
+    label: `[${short}]`,
+    description,
+    short
+  }
+}
 
 export function parseExtensionCommands(
   extensions: Extension<any>[]
@@ -94,15 +114,13 @@ export function parseExtensionCommands(
 
 export function GetWorkspaceTasks(): CommandOption[] {
   let activeEditor = vscode.window.activeTextEditor;
-
+  let launch;
   if (!activeEditor) {
-    return [];
+    launch = vscode.workspace.getConfiguration("launch");
+  } else {
+    launch = vscode.workspace.getConfiguration("launch", activeEditor.document.uri);
   }
-  const launch = vscode.workspace.getConfiguration("launch", activeEditor.document.uri);
-  return launch.configurations.map((e: any) => {
-    return [];
-    // return new CommandOption({ title: e.name, category: "Debug", command: "Launch Extension" });
-  });
+  return launch.configurations.map(newDebugCommandOption);
 }
 
 export function getCommands(config: Config,

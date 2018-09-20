@@ -11,10 +11,11 @@ export function activate(context: vscode.ExtensionContext) {
     // The command has been defined in the package.json file
     // Now provide the implementation of the command with  registerCommand
     // The commandId parameter must match the command field in package.json
-    const config = vscode.workspace.getConfiguration("short-commands");
+    // const config = vscode.workspace.getConfiguration("short-commands");
+
     const options = getCommands({
         includeExtensions: true,
-        includeWorkspaceTasks: <boolean>config.get("includeWorkspaceTasks")
+        includeWorkspaceTasks: true, //<boolean>config.get("includeWorkspaceTasks") || true
     });
     let palette = new Palette(options);
 

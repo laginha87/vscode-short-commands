@@ -44,9 +44,24 @@ suite("Commands", function () {
             short: "t"
           }
         ]
+      },
+      {
+        input: [
+          NewExtension({
+            contributes: { commands: [{ title: { original: "Title", value: "Itle" }, command: "Command" }] }
+          })
+        ],
+        output: [
+          {
+            label: "[i]",
+            description: "Itle",
+            command: { command: "Command", title: { original: "Title", value: "Itle" } },
+            short: "i"
+          }
+        ]
       }
     ].forEach(({ input, output }, i) => {
-      test(`test case ${i}`, () => { assert.deepEqual(parseExtensionCommands(input), output);});
+      test(`test case ${i}`, () => { assert.deepEqual(parseExtensionCommands(input), output); });
     });
   });
 

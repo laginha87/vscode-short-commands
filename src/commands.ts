@@ -1,9 +1,14 @@
 import { Extension, QuickPickItem } from "vscode";
 
+interface I18nString {
+  original: string;
+  value: string;
+}
+
 interface Command {
   category?: string;
   command: string;
-  title: string;
+  title: string | I18nString;
 }
 
 export class CommandOption implements QuickPickItem {
@@ -17,7 +22,8 @@ export class CommandOption implements QuickPickItem {
   public constructor(command: Command) {
     this.command = command;
     const { category, title } = command;
-    this.description = category ? `${category}: ${title}` : title;
+    const realTitle: string = (<I18nString>title).value ? (<I18nString>title).value : <string>title;
+    this.description = category ? `${category}: ${realTitle}` : realTitle;
     this.short = this.description
       .split(" ")
       .map((e: string) => e[0].toLowerCase())
@@ -32,11 +38,11 @@ export class HistoryCommandOption extends CommandOption {
     super(command);
   }
 
-  public static fromCommand(command : CommandOption) : HistoryCommandOption{
+  public static fromCommand(command: CommandOption): HistoryCommandOption {
     return new this(command.command);
   }
 
-  public static updatePositions(commands : HistoryCommandOption[]) : HistoryCommandOption[]{
+  public static updatePositions(commands: HistoryCommandOption[]): HistoryCommandOption[] {
     return commands.map((command, position) => {
       let newCommand = new HistoryCommandOption(command.command, position);
       newCommand.label = `[${position}]`;

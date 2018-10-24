@@ -1,4 +1,13 @@
-import { CommandOption, HistoryCommandOption, updateHistoryPositions, ShortCommand, COMMAND_OPTION, newHistoryCommandOption, HISTORY_COMMAND_OPTION, DEBUG_COMMAND_OPTION } from "./commands";
+import {
+  CommandOption,
+  HistoryCommandOption,
+  updateHistoryPositions,
+  ShortCommand,
+  COMMAND_OPTION,
+  newHistoryCommandOption,
+  HISTORY_COMMAND_OPTION,
+  DEBUG_COMMAND_OPTION
+} from "./commands";
 import { QuickPick } from "vscode";
 import * as vscode from "vscode";
 import deepEqual = require("deep-equal");
@@ -39,27 +48,38 @@ export class Palette {
     // TODO: Figure out what to do on callbacks.
     switch (commandOption.type) {
       case COMMAND_OPTION:
-        vscodeExecuteCommand((commandOption).command).then(() => { }, function onError() { });
+        vscodeExecuteCommand(commandOption.command).then(
+          () => { },
+          function onError() { }
+        );
         break;
       case HISTORY_COMMAND_OPTION:
-        this.execute(undefined, (commandOption).history);
+        this.execute(undefined, commandOption.history);
         saveInHistory = false;
         break;
       case DEBUG_COMMAND_OPTION:
-        vscode.tasks.executeTask(commandOption.task);
+        let workspaceFolders = vscode.workspace.workspaceFolders;
+        if (workspaceFolders) {
+          vscode.debug.startDebugging(
+            workspaceFolders[0],
+            commandOption.task.name
+          );
+        }
         break;
       default:
         break;
     }
 
     this.view.hide();
-    if(saveInHistory){
+    if (saveInHistory) {
       this.appendToHistory(newHistoryCommandOption(commandOption));
     }
   }
 
   public appendToHistory(historyCommand: HistoryCommandOption) {
-    let olderIndex = this.history.findIndex(({ history }) => deepEqual(history, historyCommand.history));
+    let olderIndex = this.history.findIndex(({ history }) =>
+      deepEqual(history, historyCommand.history)
+    );
 
     if (olderIndex !== -1) {
       this.history.splice(olderIndex, 1);
@@ -71,9 +91,9 @@ export class Palette {
   }
 
   public filter(filterText: string): void {
-    const isEmpty=filterText.length === 0;
-    const isNumber=filterText.match(/^\d+$/);
-    if (isEmpty || isNumber ) {
+    const isEmpty = filterText.length === 0;
+    const isNumber = filterText.match(/^\d+$/);
+    if (isEmpty || isNumber) {
       this.set(updateHistoryPositions(this.history));
     } else {
       this.set(this.items.filter(e => e.short.startsWith(filterText)));

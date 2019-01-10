@@ -67,8 +67,9 @@ suite("Commands", function () {
           {
             label: "[i]",
             description: "Itle",
-            command: { command: "Command", title: { original: "Title", value: "Itle" } },
-            short: "i"
+            command: "Command",
+            short: "i",
+            type: COMMAND_OPTION
           }
         ]
       }

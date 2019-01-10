@@ -13,7 +13,7 @@ export const HISTORY_COMMAND_OPTION = "HISTORY_COMMAND_OPTION";
 
 function initials(text: string) {
   return text.split(" ")
-    .map((e: string) => e[0].toLowerCase())
+    .map((e: string) => e[0] && e[0].toLowerCase())
     .join("")
     .replace(/\W/g, "");
 }

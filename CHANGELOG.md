@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 - **bug** Works with translations #19.
+- **feat** Add debug tasks #15
+
 ## [0.0.4] - 2018-09-01
 ### Added
 - **feat** Show the last 10 commands run (command history) when palette input is empty. The commands can be run by choosing the according number.

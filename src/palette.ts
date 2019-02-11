@@ -1,9 +1,19 @@
-import { CommandOption, HistoryCommandOption } from "./commands";
+import {
+  CommandOption,
+  HistoryCommandOption,
+  updateHistoryPositions,
+  ShortCommand,
+  COMMAND_OPTION,
+  newHistoryCommandOption,
+  HISTORY_COMMAND_OPTION,
+  DEBUG_COMMAND_OPTION
+} from "./commands";
 import { QuickPick } from "vscode";
 import * as vscode from "vscode";
+import deepEqual = require("deep-equal");
 
 export class Palette {
-  public view: QuickPick<CommandOption>;
+  public view: QuickPick<ShortCommand>;
   readonly history = new Array<HistoryCommandOption>();
   constructor(
     public items: CommandOption[],
@@ -14,10 +24,10 @@ export class Palette {
     view.onDidAccept(this.execute, this);
     // TODO: Figure out what to do if items is empty;
     if (items.length > 0) {
-    let sample = items[Math.floor(Math.random() * items.length)];
-    view.placeholder = `Example: type ${sample.short} to run ${
-      sample.description
-      }`;
+      let sample = items[Math.floor(Math.random() * items.length)];
+      view.placeholder = `Example: type ${sample.short} to run ${
+        sample.description
+        }`;
     }
 
     this.view = view;
@@ -26,7 +36,7 @@ export class Palette {
   public show(): void {
     this.view.show();
     this.view.value = "";
-    this.view.items = HistoryCommandOption.updatePositions(this.history);
+    this.view.items = updateHistoryPositions(this.history);
   }
 
   public execute(
@@ -34,35 +44,63 @@ export class Palette {
     commandOption = this.activeCommand(),
     vscodeExecuteCommand = vscode.commands.executeCommand
   ): void {
-    vscodeExecuteCommand(commandOption.command.command);
+    let saveInHistory = true;
+    // TODO: Figure out what to do on callbacks.
+    switch (commandOption.type) {
+      case COMMAND_OPTION:
+        vscodeExecuteCommand(commandOption.command).then(
+          () => { },
+          function onError() { }
+        );
+        break;
+      case HISTORY_COMMAND_OPTION:
+        this.execute(undefined, commandOption.history);
+        saveInHistory = false;
+        break;
+      case DEBUG_COMMAND_OPTION:
+        let workspaceFolders = vscode.workspace.workspaceFolders;
+        if (workspaceFolders) {
+          vscode.debug.startDebugging(
+            workspaceFolders[0],
+            commandOption.task.name
+          );
+        }
+        break;
+      default:
+        break;
+    }
+
     this.view.hide();
-    let historyCommand = HistoryCommandOption.fromCommand(commandOption);
-    this.appendToHistory(historyCommand);
+    if (saveInHistory) {
+      this.appendToHistory(newHistoryCommandOption(commandOption));
+    }
   }
 
   public appendToHistory(historyCommand: HistoryCommandOption) {
-    let olderIndex = this.history.findIndex(({command: {command}}) => command === historyCommand.command.command);
+    let olderIndex = this.history.findIndex(({ history }) =>
+      deepEqual(history, historyCommand.history)
+    );
 
     if (olderIndex !== -1) {
       this.history.splice(olderIndex, 1);
     }
     this.history.unshift(historyCommand);
-    if(this.history.length > 10) {
+    if (this.history.length > 10) {
       this.history.pop();
     }
   }
 
   public filter(filterText: string): void {
-    if (filterText.length === 0) {
-      this.set(HistoryCommandOption.updatePositions(this.history));
-    } else if (filterText.match(/^\d+$/)) {
-      this.set(HistoryCommandOption.updatePositions(this.history));
+    const isEmpty = filterText.length === 0;
+    const isNumber = filterText.match(/^\d+$/);
+    if (isEmpty || isNumber) {
+      this.set(updateHistoryPositions(this.history));
     } else {
       this.set(this.items.filter(e => e.short.startsWith(filterText)));
     }
   }
 
-  private set(items: CommandOption[]) {
+  private set(items: ShortCommand[]) {
     this.view.items = items;
   }
 

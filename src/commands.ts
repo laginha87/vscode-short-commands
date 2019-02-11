@@ -1,53 +1,97 @@
 import { Extension, QuickPickItem } from "vscode";
+import * as vscode from "vscode";
 
 interface I18nString {
   original: string;
   value: string;
 }
 
+
+export const COMMAND_OPTION = "COMMAND_OPTION";
+export const DEBUG_COMMAND_OPTION = "DEBUG_COMMAND_OPTION";
+export const HISTORY_COMMAND_OPTION = "HISTORY_COMMAND_OPTION";
+
+function initials(text: string) {
+  return text.split(" ")
+    .map((e: string) => e[0] && e[0].toLowerCase())
+    .join("")
+    .replace(/\W/g, "");
+}
+
+export function newCommandOption(c: Command): CommandOption {
+  const { category, title, command } = c;
+  const realTitle: string = (<I18nString>title).value ? (<I18nString>title).value : <string>title;
+  const description = category ? `${category}: ${realTitle}` : realTitle;
+  const short = initials(description);
+  const label = `[${short}]`;
+  return {
+    type: COMMAND_OPTION,
+    label,
+    description,
+    command,
+    short
+  }
+}
 interface Command {
   category?: string;
   command: string;
   title: string | I18nString;
 }
 
-export class CommandOption implements QuickPickItem {
-  label: string;
-  description?: string | undefined;
-  detail?: string | undefined;
-  picked?: boolean | undefined;
-  command: Command;
-  short: string;
+export type ShortCommand = CommandOption | HistoryCommandOption | DebugCommandOption;
 
-  public constructor(command: Command) {
-    this.command = command;
-    const { category, title } = command;
-    const realTitle: string = (<I18nString>title).value ? (<I18nString>title).value : <string>title;
-    this.description = category ? `${category}: ${realTitle}` : realTitle;
-    this.short = this.description
-      .split(" ")
-      .map((e: string) => e[0].toLowerCase())
-      .join("")
-      .replace(/\W/g, "");
-    this.label = `[${this.short}]`;
-  }
+export interface CommandOption extends QuickPickItem {
+  type: typeof COMMAND_OPTION;
+  command: string;
+  short: string;
 }
 
-export class HistoryCommandOption extends CommandOption {
-  public constructor(command: Command, public position = 0) {
-    super(command);
-  }
 
-  public static fromCommand(command: CommandOption): HistoryCommandOption {
-    return new this(command.command);
-  }
+export interface Config {
+  includeExtensions: boolean;
+  includeWorkspaceTasks: boolean;
+}
 
-  public static updatePositions(commands: HistoryCommandOption[]): HistoryCommandOption[] {
-    return commands.map((command, position) => {
-      let newCommand = new HistoryCommandOption(command.command, position);
-      newCommand.label = `[${position}]`;
-      return newCommand;
-    });
+export interface HistoryCommandOption extends QuickPickItem {
+  type: typeof HISTORY_COMMAND_OPTION;
+  history: ShortCommand;
+  position: number;
+  short: string;
+}
+
+export function newHistoryCommandOption(command: ShortCommand, position = 0): HistoryCommandOption {
+  return {
+    type: HISTORY_COMMAND_OPTION,
+    history: command,
+    position,
+    label: `[${position}]`,
+    description: command.description,
+    short: `${position}`
+  };
+}
+
+export function updateHistoryPositions(commands: HistoryCommandOption[]): HistoryCommandOption[] {
+  return commands.map(({ history }, position) => {
+    return newHistoryCommandOption(history, position);
+  });
+}
+
+
+export interface DebugCommandOption extends QuickPickItem {
+  type: typeof DEBUG_COMMAND_OPTION;
+  task: vscode.Task;
+  short: string;
+}
+
+export function newDebugCommandOption(task: vscode.Task): DebugCommandOption {
+  const description = `Debug: ${task.name}`;
+  const short = initials(description);
+  return {
+    type: DEBUG_COMMAND_OPTION,
+    task,
+    label: `[${short}]`,
+    description,
+    short
   }
 }
 
@@ -61,9 +105,35 @@ export function parseExtensionCommands(
     } = ext;
     if (commands) {
       commands.forEach((c: Command) => {
-        options.push(new CommandOption(c));
+        options.push(newCommandOption(c));
       });
     }
   });
   return options;
+}
+
+export function GetWorkspaceTasks(): CommandOption[] {
+  let activeEditor = vscode.window.activeTextEditor;
+  let launch;
+  if (!activeEditor) {
+    launch = vscode.workspace.getConfiguration("launch");
+  } else {
+    launch = vscode.workspace.getConfiguration("launch", activeEditor.document.uri);
+  }
+  return launch.configurations.map(newDebugCommandOption);
+}
+
+export function getCommands(config: Config,
+  getExtensions = parseExtensionCommands,
+  getWorkspaceTasks = GetWorkspaceTasks): CommandOption[] {
+  let output: CommandOption[] = [];
+  if (config.includeExtensions) {
+    output = output.concat(getExtensions(vscode.extensions.all));
+  }
+
+  if (config.includeWorkspaceTasks) {
+    output = output.concat(getWorkspaceTasks());
+  }
+
+  return output;
 }

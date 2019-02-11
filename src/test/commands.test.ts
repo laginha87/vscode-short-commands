@@ -1,6 +1,17 @@
-import * as assert from "assert";
-import { Extension } from "vscode";
-import { parseExtensionCommands, HistoryCommandOption } from "../commands";
+import * as assert from 'assert';
+import sinon = require('sinon');
+import { Extension } from 'vscode';
+
+import {
+  CommandOption,
+  Config,
+  getCommands,
+  newCommandOption,
+  newHistoryCommandOption,
+  parseExtensionCommands,
+  updateHistoryPositions,
+  COMMAND_OPTION,
+} from '../commands';
 
 function NewExtension(packageJSON: any): Extension<any> {
   return {
@@ -40,7 +51,8 @@ suite("Commands", function () {
           {
             label: "[t]",
             description: "Title",
-            command: { command: "Command", title: "Title" },
+            command: "Command",
+            type: COMMAND_OPTION,
             short: "t"
           }
         ]
@@ -55,8 +67,9 @@ suite("Commands", function () {
           {
             label: "[i]",
             description: "Itle",
-            command: { command: "Command", title: { original: "Title", value: "Itle" } },
-            short: "i"
+            command: "Command",
+            short: "i",
+            type: COMMAND_OPTION
           }
         ]
       }
@@ -65,16 +78,51 @@ suite("Commands", function () {
     });
   });
 
+  suite("getCommands()", function () {
+    let extensionCommand = newCommandOption({ command: "extensionCommand", title: "extensionCommand" }),
+      workspaceTask = newCommandOption({ command: "workspaceTask", title: "workspaceTask" });
+
+    interface TestCase {
+      input: Config;
+      output: CommandOption[];
+    }
+    let testCases: TestCase[] = [{
+      input: {
+        includeExtensions: true,
+        includeWorkspaceTasks: false
+      },
+      output: [extensionCommand]
+    },
+    {
+      input: {
+        includeExtensions: false,
+        includeWorkspaceTasks: true,
+      },
+      output: [workspaceTask]
+    }];
+
+    testCases.forEach((t, i) => {
+      test(`test case ${i}`, () => {
+        let getExtensions = sinon.mock().returns([extensionCommand]),
+          getWorkspaceTasks = sinon.mock().returns([workspaceTask]),
+          expected = getCommands(t.input, getExtensions, getWorkspaceTasks);
+
+        assert.deepEqual(t.output, expected);
+      });
+    });
+
+  });
+
   suite("HistoryCommand", function () {
     test("constructor()", function () {
-      let command = new HistoryCommandOption({ command: "Command", title: "Title" });
+      let command = newHistoryCommandOption(newCommandOption({ command: "Command", title: "Title" }));
       assert.equal(command.position, 0);
     });
 
     test("updatePositions()", function () {
-      let command = { command: "Command", title: "Title" };
-      let commands = [new HistoryCommandOption(command), new HistoryCommandOption(command), new HistoryCommandOption(command)];
-      let newCommands = HistoryCommandOption.updatePositions(commands);
+      let command = newCommandOption({ command: "Command", title: "Title" });
+      let commands = [newHistoryCommandOption(command), newHistoryCommandOption(command), newHistoryCommandOption(command)];
+      let newCommands = updateHistoryPositions(commands);
       assert(commands.every((e) => e.position === 0));
 
       assert.equal(0, newCommands[0].position);

@@ -30,7 +30,18 @@
                 "category": "Short Commands",
                 "title": "Activate Palette"
             }
-        ]
+        ],
+        "configuration": {
+            "type": "object",
+            "title": "Short Commands Configuration",
+            "properties": {
+                "short-commands.includeWorkspaceTasks": {
+                    "default": false,
+                    "description": "Include workspace tasks in the command suggestions.",
+                    "type": "boolean"
+                }
+            }
+        }
     },
     "scripts": {
         "vscode:prepublish": "npm run compile",
@@ -40,12 +51,15 @@
         "test": "npm run compile && node ./node_modules/vscode/bin/test"
     },
     "devDependencies": {
+        "@types/deep-equal": "^1.0.1",
         "@types/mocha": "^2.2.42",
         "@types/node": "^8.10.25",
-        "@types/sinon": "^5.0.1",
+        "@types/sinon": "^7.0.5",
+        "deep-equal": "^1.0.1",
         "sinon": "^6.1.5",
         "tslint": "^5.8.0",
         "typescript": "^2.6.1",
         "vscode": "^1.1.21"
-    }
+    },
+    "dependencies": {}
 }

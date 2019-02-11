@@ -11,9 +11,36 @@ import * as assert from 'assert';
 import * as vscode from 'vscode';
 
 suite("Extension Tests", function () {
-    test("activatePalette", async function () {
-        let promise = vscode.commands.executeCommand('short-commands.activatePalette');
-        let res = await promise;
-        assert(res);
+    test("activatePalette", function () {
+        return vscode.commands.executeCommand('short-commands.activatePalette').then((e) => {
+            assert(e);
+        });
+    });
+
+    test("package.json", function () {
+        let extension = vscode.extensions.getExtension("laginha87.short-commands");
+        if (extension === undefined) {
+            return assert.fail("Could not find extension with id short-commands");
+        }
+        let { packageJSON: { activationEvents, contributes: { commands, configuration } } } = extension;
+        assert.deepEqual(["onCommand:short-commands.activatePalette"], activationEvents);
+
+        assert.deepEqual([{
+            "command": "short-commands.activatePalette",
+            "category": "Short Commands",
+            "title": "Activate Palette"
+        }], commands);
+
+        assert.deepEqual({
+            "type": "object",
+            "title": "Short Commands Configuration",
+            "properties": {
+                "short-commands.includeWorkspaceTasks": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Include workspace tasks in the command suggestions."
+                }
+            }
+        }, configuration);
     });
 });

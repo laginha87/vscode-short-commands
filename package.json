@@ -5,6 +5,7 @@
     "version": "0.2.0",
     "publisher": "laginha87",
     "icon": "images/icon.png",
+    "license": "MIT",
     "repository": "https://github.com/laginha87/vscode-short-commands",
     "engines": {
         "vscode": "^1.26.0"

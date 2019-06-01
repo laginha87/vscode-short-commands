@@ -37,6 +37,9 @@ Calling out known issues can help limit users opening duplicate issues against y
 
 ## Release Notes
 
+### 0.1.0 and 0.2.0
+Fixes a bad release in 0.0.5, messed up the publishing :(.
+
 ### 0.0.5
 Adds debug tasks.
 

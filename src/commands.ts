@@ -30,7 +30,7 @@ export function newCommandOption(c: Command): CommandOption {
     description,
     command,
     short
-  }
+  };
 }
 interface Command {
   category?: string;
@@ -92,7 +92,7 @@ export function newDebugCommandOption(task: vscode.Task): DebugCommandOption {
     label: `[${short}]`,
     description,
     short
-  }
+  };
 }
 
 export function parseExtensionCommands(
